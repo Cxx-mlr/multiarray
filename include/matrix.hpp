@@ -82,9 +82,13 @@ public:
 	using reference = t&;
 	using const_reference = const t&;
 
-	constexpr void fill(const t& value) noexcept { for_each(elems, [=](t& x) { x = value; }); }
+	constexpr void fill(const t& value) noexcept {
+		for_each(elems, [value](t& x) { x = value; });
+	}
 
-	constexpr void swap(matrix_type& m) noexcept { elems.swap(m); }
+	constexpr void swap(matrix_type& m) noexcept {
+		elems.swap(m);
+	}
 
 	[[nodiscard]] constexpr auto begin() noexcept {
 		return elems.begin();
@@ -150,7 +154,7 @@ public:
 		return elems[index];
 	}
 
-	constexpr reference min() noexcept {
+	[[nodiscard]] constexpr reference min() noexcept {
 		t* min = &detail::at_index(elems, 0, detail::def_v <ns, 0>...);
 
 		detail::for_each(elems, [&min](t& x) { if (x < *min) { min = &x; } });
@@ -158,7 +162,7 @@ public:
 		return *min;
 	}
 
-	constexpr reference max() noexcept {
+	[[nodiscard]] constexpr reference max() noexcept {
 		t* max = &detail::at_index(elems, 0, detail::def_v <ns, 0>...);
 
 		detail::for_each(elems, [&max](t& x) { if (x > * max) { max = &x; } });
@@ -166,7 +170,7 @@ public:
 		return *max;
 	}
 
-	constexpr const_reference min() const noexcept {
+	[[nodiscard]] constexpr const_reference min() const noexcept {
 		const t* min = &detail::at_index(elems, 0, detail::def_v <ns, 0>...);
 
 		detail::for_each(elems, [&min](const t& x) { if (x < *min) { min = &x; } });
@@ -174,7 +178,7 @@ public:
 		return *min;
 	}
 
-	constexpr const_reference max() const noexcept {
+	[[nodiscard]] constexpr const_reference max() const noexcept {
 		const t* max = &detail::at_index(elems, 0, detail::def_v <ns, 0>...);
 
 		detail::for_each(elems, [&max](const t& x) { if (x > * max) { max = &x; } });
@@ -278,126 +282,126 @@ public:
 
 	matrix_type elems;
 
-	constexpr friend auto operator* (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator* (cx::matrix <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(*= );
 
 		return m;
 	}
 
-	constexpr friend auto operator* (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator* (const t& value, cx::matrix <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(*= );
 
 		return m;
 	}
 
-	constexpr friend auto operator/ (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator/ (cx::matrix <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(/= );
 
 		return m;
 	}
 
-	constexpr friend auto operator/ (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator/ (const t& value, cx::matrix <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(/= );
 
 		return m;
 	}
 
-	constexpr friend auto operator% (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator% (cx::matrix <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(%= );
 
 		return m;
 	}
 
-	constexpr friend auto operator% (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator% (const t& value, cx::matrix <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(%= );
 
 		return m;
 	}
 
-	constexpr friend auto operator+ (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator+ (cx::matrix <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(+= );
 
 		return m;
 	}
 
-	constexpr friend auto operator+ (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator+ (const t& value, cx::matrix <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(+= );
 
 		return m;
 	}
 
-	constexpr friend auto operator- (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator- (cx::matrix <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(-= );
 
 		return m;
 	}
 
-	constexpr friend auto operator- (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator- (const t& value, cx::matrix <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(-= );
 
 		return m;
 	}
 
-	constexpr friend auto operator^ (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator^ (cx::matrix <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(^= );
 
 		return m;
 	}
 
-	constexpr friend auto operator^ (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator^ (const t& value, cx::matrix <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(^= );
 
 		return m;
 	}
 
-	constexpr friend auto operator| (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator| (cx::matrix <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(|= );
 
 		return m;
 	}
 
-	constexpr friend auto operator| (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator| (const t& value, cx::matrix <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(|= );
 
 		return m;
 	}
 
-	constexpr friend auto operator& (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator& (cx::matrix <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(&= );
 
 		return m;
 	}
 
-	constexpr friend auto operator& (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator& (const t& value, cx::matrix <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(&= );
 
 		return m;
 	}
 
-	constexpr friend auto operator<< (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator<< (cx::matrix <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(<<= );
 
 		return m;
 	}
 
-	constexpr friend auto operator>> (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator>> (cx::matrix <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(>>= );
 
