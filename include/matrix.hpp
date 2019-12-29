@@ -66,6 +66,28 @@ namespace detail {
 		}
 	}
 
+	template <class t, std::size_t n, class... size_t>
+	constexpr auto& at_index_noexcept(const std::array <t, n>& arr, std::size_t index, size_t... indexes) noexcept {
+		if constexpr (sizeof...(indexes) == 0) {
+			return arr[index];
+		}
+
+		else {
+			return at_index(arr[index], indexes...);
+		}
+	}
+
+	template <class t, std::size_t n, class... size_t>
+	constexpr auto& at_index_noexcept(std::array <t, n>& arr, std::size_t index, size_t... indexes) noexcept {
+		if constexpr (sizeof...(indexes) == 0) {
+			return arr[index];
+		}
+
+		else {
+			return at_index(arr[index], indexes...);
+		}
+	}
+
 	template <auto, std::size_t v>
 	inline constexpr std::size_t def_v = v;
 }
@@ -123,11 +145,11 @@ public:
 	}
 
 	[[nodiscard]] constexpr reference operator()(std::size_t index, detail::pack_t <ns>... indexes) noexcept {
-		return detail::at_index(elems, index, indexes...);
+		return detail::at_index_noexcept(elems, index, indexes...);
 	}
 
 	[[nodiscard]] constexpr const_reference operator()(std::size_t index, detail::pack_t <ns>... indexes) const noexcept {
-		return detail::at_index(elems, index, indexes...);
+		return detail::at_index_noexcept(elems, index, indexes...);
 	}
 
 	[[nodiscard]] constexpr reference at(std::size_t index, detail::pack_t <ns>... indexes) {
