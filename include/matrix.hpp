@@ -73,7 +73,7 @@ namespace detail {
 		}
 
 		else {
-			return at_index(arr[index], indexes...);
+			return at_index_noexcept(arr[index], indexes...);
 		}
 	}
 
@@ -84,7 +84,7 @@ namespace detail {
 		}
 
 		else {
-			return at_index(arr[index], indexes...);
+			return at_index_noexcept(arr[index], indexes...);
 		}
 	}
 
@@ -177,7 +177,7 @@ public:
 	}
 
 	[[nodiscard]] constexpr reference min() noexcept {
-		t* min = &detail::at_index(elems, 0, detail::def_v <ns, 0>...);
+		t* min = &detail::at_index_noexcept(elems, 0, detail::def_v <ns, 0>...);
 
 		detail::for_each(elems, [&min](t& x) { if (x < *min) { min = &x; } });
 
@@ -185,7 +185,7 @@ public:
 	}
 
 	[[nodiscard]] constexpr reference max() noexcept {
-		t* max = &detail::at_index(elems, 0, detail::def_v <ns, 0>...);
+		t* max = &detail::at_index_noexcept(elems, 0, detail::def_v <ns, 0>...);
 
 		detail::for_each(elems, [&max](t& x) { if (x > * max) { max = &x; } });
 
@@ -193,7 +193,7 @@ public:
 	}
 
 	[[nodiscard]] constexpr const_reference min() const noexcept {
-		const t* min = &detail::at_index(elems, 0, detail::def_v <ns, 0>...);
+		const t* min = &detail::at_index_noexcept(elems, 0, detail::def_v <ns, 0>...);
 
 		detail::for_each(elems, [&min](const t& x) { if (x < *min) { min = &x; } });
 
@@ -201,7 +201,7 @@ public:
 	}
 
 	[[nodiscard]] constexpr const_reference max() const noexcept {
-		const t* max = &detail::at_index(elems, 0, detail::def_v <ns, 0>...);
+		const t* max = &detail::at_index_noexcept(elems, 0, detail::def_v <ns, 0>...);
 
 		detail::for_each(elems, [&max](const t& x) { if (x > * max) { max = &x; } });
 
@@ -278,7 +278,7 @@ public:
 			result[index] = &x;
 
 			++index;
-			});
+		});
 
 		return result;
 	}
@@ -291,7 +291,7 @@ public:
 			result[index] = &x;
 
 			++index;
-			});
+		});
 
 		return result;
 	}
