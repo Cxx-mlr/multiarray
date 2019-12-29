@@ -1,7 +1,6 @@
-# matrix
+   #  matrix
 
--
--
+-------
 ```cpp
 #include "matrix.hpp"
 
