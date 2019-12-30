@@ -96,7 +96,9 @@ m.crend();
 cx::matrix <std::string, 2, 3> m1 = {};
 cx::matrix <std::string, 2, 3> m2 = {};
 
-m2.fill(5);
+m2.fill("X");
 
 m1.swap(m2);
+
+std::cout << m1; // XXXXXX
 ```
