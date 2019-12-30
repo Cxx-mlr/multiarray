@@ -168,12 +168,10 @@ public:
 		return detail::at_index(elems, index, indexes...);
 	}
 
-	[[nodiscard]] constexpr auto& operator[](std::size_t index) noexcept {
-		return elems[index];
+	constexpr auto operator[](std::size_t index) noexcept {
 	}
 
-	[[nodiscard]] constexpr auto& operator[](std::size_t index) const noexcept {
-		return elems[index];
+	constexpr auto operator[](std::size_t index) const noexcept {
 	}
 
 	[[nodiscard]] constexpr reference min() noexcept {
