@@ -37,9 +37,10 @@ cx::matrix <int, 3, 3> m_2 = {};
 cx::matrix <int, 3, 3, 3> m_3 = {};
 cx::matrix <int, 3, 3, 3, 3...> m_ = {};
 
+// linear index - unimplemented
 m_1[index]
-m_2[index][index]
-m_3[index][index][index]
+m_2[index]
+m_3[index]
 
 m_1(index)
 m_2(index, index)
