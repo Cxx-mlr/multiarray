@@ -4,6 +4,10 @@
 #include <iostream>
 #include <array>
 
+#include <type_traits>
+#include <tuple>
+#include <utility>
+
 #define CX_BEGIN namespace cx {
 #define CX_END }
 
@@ -19,11 +23,8 @@ namespace detail {
 		using type = std::array <t, n>;
 	};
 
-	template <auto>
-	struct pack { using type = std::size_t; };
-
 	template <auto v>
-	using pack_t = typename pack <v>::type;
+	using identity = decltype(v);
 
 	template <class t, class ptr_f>
 	constexpr void for_each(t& value, ptr_f f) noexcept {
@@ -90,6 +91,43 @@ namespace detail {
 
 	template <auto, std::size_t v>
 	inline constexpr std::size_t def_v = v;
+
+	template <std::size_t... ns, std::size_t... indexes>
+	constexpr std::size_t product(std::index_sequence <indexes...>) noexcept {
+		std::tuple dims{ ns... };
+		return (std::get <sizeof...(ns) - indexes - 1>(dims) * ... * 1);
+	}
+
+	template <std::size_t... ns, std::size_t... steps>
+	constexpr std::size_t to_linear_index_impl(std::index_sequence <steps...>, identity <ns>... indexes) noexcept {
+		return ((indexes * product <ns...>(std::make_index_sequence <sizeof...(ns) - steps - 1>())) + ...);
+	}
+
+	//
+
+	template <std::size_t... ns, std::size_t... indexes>
+	constexpr auto mod_div(std::index_sequence <indexes...>, std::size_t index) noexcept {
+		std::tuple dims{ ns... };
+
+		((index /= std::get <sizeof...(ns) - 1U - indexes>(dims)), ...);
+
+
+		if constexpr (sizeof...(indexes) == 0) {
+			index %= std::get <sizeof...(ns) - 1>(dims);
+		}
+
+		else if constexpr (sizeof...(indexes) != sizeof...(ns)) {
+			index %= std::get <sizeof...(indexes)>(dims);
+		}
+
+		return index;
+	}
+
+	template <std::size_t... ns, std::size_t... indexes>
+	constexpr auto to_subscript_impl(std::index_sequence <indexes...>, std::size_t index) noexcept {
+		return std::tuple{ mod_div <ns...>(std::make_index_sequence <sizeof...(ns) - 1U - indexes>(), index)... };
+	}
+
 }
 
 template <class t, std::size_t n, std::size_t... ns>
@@ -108,7 +146,7 @@ public:
 		for_each(elems, [value](t& x) { x = value; });
 	}
 
-	constexpr void swap(matrix_type& m) noexcept {
+	constexpr void swap(matrix_type& m) noexcept(std::is_nothrow_swappable_v <matrix_type>) {
 		elems.swap(m);
 	}
 
@@ -144,15 +182,27 @@ public:
 		return elems.crend();
 	}
 
-	[[nodiscard]] constexpr reference operator()(std::size_t index, detail::pack_t <ns>... indexes) noexcept {
+	[[nodiscard]] constexpr reference operator()(std::size_t index, detail::identity <ns>... indexes) noexcept {
 		return detail::at_index_noexcept(elems, index, indexes...);
 	}
 
-	[[nodiscard]] constexpr const_reference operator()(std::size_t index, detail::pack_t <ns>... indexes) const noexcept {
+	[[nodiscard]] constexpr const_reference operator()(std::size_t index, detail::identity <ns>... indexes) const noexcept {
 		return detail::at_index_noexcept(elems, index, indexes...);
 	}
 
-	[[nodiscard]] constexpr reference at(std::size_t index, detail::pack_t <ns>... indexes) {
+	[[nodiscard]] constexpr reference operator()(std::tuple <std::size_t, detail::identity <ns>...> tupl) noexcept {
+		return std::apply([this](auto... indexes) -> t& {
+			return this->operator()(indexes...);
+		}, tupl);
+	}
+
+	[[nodiscard]] constexpr const_reference operator()(std::tuple <std::size_t, detail::identity <ns>...> tupl) const noexcept {
+		return std::apply([this](auto... indexes) -> const t& {
+			return this->operator()(indexes...);
+		}, tupl);
+	}
+
+	[[nodiscard]] constexpr reference at(std::size_t index, detail::identity <ns>... indexes) {
 		if (index >= n || ((indexes >= ns) || ...)) {
 			throw std::range_error("array subscript out of range");
 		}
@@ -160,7 +210,7 @@ public:
 		return detail::at_index(elems, index, indexes...);
 	}
 
-	[[nodiscard]] constexpr const_reference at(std::size_t index, detail::pack_t <ns>... indexes) const {
+	[[nodiscard]] constexpr const_reference at(std::size_t index, detail::identity <ns>... indexes) const {
 		if (index >= n || ((indexes >= ns) || ...)) {
 			throw std::range_error("array subscript out of range");
 		}
@@ -168,10 +218,32 @@ public:
 		return detail::at_index(elems, index, indexes...);
 	}
 
-	constexpr auto operator[](std::size_t index) noexcept {
+	[[nodiscard]] constexpr reference at(std::tuple <std::size_t, detail::identity <ns>...> tupl) {
+		return std::apply([this](auto... indexes) -> t& {
+			return this->at(indexes...);
+		}, tupl);
 	}
 
-	constexpr auto operator[](std::size_t index) const noexcept {
+	[[nodiscard]] constexpr const_reference at(std::tuple <std::size_t, detail::identity <ns>...> tupl) const {
+		return std::apply([this](auto... indexes) -> const t& {
+			return this->at(indexes...);
+		}, tupl);
+	}
+
+	[[nodiscard]] constexpr reference operator[](std::size_t index) noexcept {
+		auto tupl = to_subscript(index);
+
+		return std::apply([this](auto... indexes) -> t& {
+			return this->operator()(indexes...);
+		}, tupl);
+	}
+
+	[[nodiscard]] constexpr const_reference operator[](std::size_t index) const noexcept {
+		auto tupl = to_subscript(index);
+
+		return std::apply([this](auto... indexes) -> const t& {
+			return this->operator()(indexes...);
+		}, tupl);
 	}
 
 	[[nodiscard]] constexpr reference min() noexcept {
@@ -207,6 +279,34 @@ public:
 	}
 
 #define ARITHMV(OP) detail::for_each(elems, [value](t& x) { x OP value; });
+
+	constexpr matrix& operator++ () noexcept {
+		detail::for_each(elems, [](t& x) { ++x; });
+
+		return *this;
+	}
+
+	constexpr matrix operator++ (int) noexcept {
+		auto m = *this;
+
+		detail::for_each(elems, [](t& x) { x++; });
+
+		return m;
+	}
+
+	constexpr matrix& operator-- () noexcept {
+		detail::for_each(elems, [](t& x) { --x; });
+
+		return *this;
+	}
+
+	constexpr matrix operator-- (int) noexcept {
+		auto m = *this;
+
+		detail::for_each(elems, [](t& x) { x--; });
+
+		return m;
+	}
 
 	constexpr matrix& operator*= (const t& value) noexcept {
 		ARITHMV(*= );
@@ -292,6 +392,18 @@ public:
 		});
 
 		return result;
+	}
+
+	[[nodiscard]] static bool index_out_of_bounds(std::size_t index, detail::identity <ns>... indexes) noexcept {
+		return index >= n || ((indexes >= ns) || ...);
+	}
+
+	constexpr static std::size_t to_linear_index(std::size_t index, detail::identity <ns>... indexes) noexcept {
+		return detail::to_linear_index_impl <n, ns...>(std::make_index_sequence <sizeof...(ns) + 1>(), index, indexes...);
+	}
+
+	constexpr static auto to_subscript(std::size_t index) noexcept {
+		return detail::to_subscript_impl <n, ns...>(std::make_index_sequence <sizeof...(ns) + 1>(), index);
 	}
 
 	inline friend std::ostream& operator<< (std::ostream& out, const matrix& m) {
