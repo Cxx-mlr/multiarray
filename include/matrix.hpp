@@ -143,11 +143,11 @@ public:
 	using const_reference = const t&;
 
 	constexpr void fill(const t& value) noexcept {
-		for_each(elems, [value](t& x) { x = value; });
+		detail::for_each(elems, [value](t& x) { x = value; });
 	}
 
-	constexpr void swap(matrix_type& m) noexcept(std::is_nothrow_swappable_v <matrix_type>) {
-		elems.swap(m);
+	constexpr void swap(matrix& m) noexcept(std::is_nothrow_swappable_v <matrix_type>) {
+		elems.swap(m.elems);
 	}
 
 	[[nodiscard]] constexpr auto begin() noexcept {
@@ -548,4 +548,4 @@ public:
 };
 CX_END
 
-#endif // MATRIX_HPP
+#endif
