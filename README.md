@@ -37,18 +37,20 @@ cx::matrix <int, 3, 3> m_2 = {};
 cx::matrix <int, 3, 3, 3> m_3 = {};
 cx::matrix <int, 3, 3, 3, 3...> m_ = {};
 
-// linear index - unimplemented
-m_1[index]
-m_2[index]
-m_3[index]
+// linear index
+m_1[i]
+m_2[i]
+m_3[i]
 
-m_1(index)
-m_2(index, index)
-m_3(index, index, index)
+// subscript
+m_1(i)
+m_2(i, j)
+m_3(i, j, k)
 
-m_1.at(index)
-m_2.at(index, index)
-m_3.at(index, index, index)
+// index check
+m_1.at(i)
+m_2.at(i, j)
+m_3.at(i, j, k)
 ```
 .....
 - Arithmetic
@@ -76,6 +78,42 @@ m | value;
 m & value;
 m << value;
 m >> value;
+
+#include "matrix.hpp"
+#include <cassert>
+
+int main() {
+   cx::matrix <int, 2, 3, 4> m =
+   {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
+
+   for (std::size_t i = 0; i < 24; ++i) {
+      int x = m(m.to_subscript(i));
+      int y = m[i];
+      int z = m.at(m.to_subscript(i));
+      
+      assert(x == y && x == z); // pass
+   }
+   
+   for (std::size_t i = 0; i < 2; ++i) {
+      for (std::size_t j = 0; j < 3; ++j) {
+         for (std::size_t k = 0; k < 4; ++k) {
+            int x = m(i, j, k);
+            int y = m[m.to_linear_index(i, j, k)];
+            int z = m.at(i, j, k);
+            
+            assert(x == y && x == z); // pass
+         }
+      }
+   }
+   
+   for (std::size_t i = 0; i < 100; ++i) {
+      if (m.index_out_of_bounds(m.to_subscript(i))) {
+         break;
+      }
+      
+      std::cout << m[i] << ' '; // 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+   }
+}
 ```
 .....
 - Iterator
