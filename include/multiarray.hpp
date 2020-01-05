@@ -1,5 +1,5 @@
-#ifndef MATRIX_HPP
-#define MATRIX_HPP
+#ifndef MULTIARRAY_HPP
+#define MULTIARRAY_HPP
 
 #include <iostream>
 #include <array>
@@ -14,12 +14,12 @@
 CX_BEGIN
 namespace detail {
 	template <class t, std::size_t n, std::size_t... ns>
-	struct matrix_t {
-		using type = std::array <typename matrix_t <t, ns...>::type, n>;
+	struct multiarray_t {
+		using type = std::array <typename multiarray_t <t, ns...>::type, n>;
 	};
 
 	template <class t, std::size_t n>
-	struct matrix_t <t, n> {
+	struct multiarray_t <t, n> {
 		using type = std::array <t, n>;
 	};
 
@@ -131,9 +131,9 @@ namespace detail {
 }
 
 template <class t, std::size_t n, std::size_t... ns>
-class matrix {
+class multiarray {
 public:
-	using matrix_type = typename detail::matrix_t <t, n, ns...>::type;
+	using multiarray_type = typename detail::multiarray_t <t, n, ns...>::type;
 
 	using value_type = t;
 	using size_type = std::size_t;
@@ -146,7 +146,7 @@ public:
 		detail::for_each(elems, [value](t& x) { x = value; });
 	}
 
-	constexpr void swap(matrix& m) noexcept(std::is_nothrow_swappable_v <matrix_type>) {
+	constexpr void swap(multiarray& m) noexcept(std::is_nothrow_swappable_v <multiarray_type>) {
 		elems.swap(m.elems);
 	}
 
@@ -280,13 +280,13 @@ public:
 
 #define ARITHMV(OP) detail::for_each(elems, [value](t& x) { x OP value; });
 
-	constexpr matrix& operator++ () noexcept {
+	constexpr multiarray& operator++ () noexcept {
 		detail::for_each(elems, [](t& x) { ++x; });
 
 		return *this;
 	}
 
-	constexpr matrix operator++ (int) noexcept {
+	constexpr multiarray operator++ (int) noexcept {
 		auto m = *this;
 
 		detail::for_each(elems, [](t& x) { x++; });
@@ -294,13 +294,13 @@ public:
 		return m;
 	}
 
-	constexpr matrix& operator-- () noexcept {
+	constexpr multiarray& operator-- () noexcept {
 		detail::for_each(elems, [](t& x) { --x; });
 
 		return *this;
 	}
 
-	constexpr matrix operator-- (int) noexcept {
+	constexpr multiarray operator-- (int) noexcept {
 		auto m = *this;
 
 		detail::for_each(elems, [](t& x) { x--; });
@@ -308,61 +308,61 @@ public:
 		return m;
 	}
 
-	constexpr matrix& operator*= (const t& value) noexcept {
+	constexpr multiarray& operator*= (const t& value) noexcept {
 		ARITHMV(*= );
 
 		return *this;
 	}
 
-	constexpr matrix& operator/= (const t& value) noexcept {
+	constexpr multiarray& operator/= (const t& value) noexcept {
 		ARITHMV(/= );
 
 		return *this;
 	}
 
-	constexpr matrix& operator%= (const t& value) noexcept {
+	constexpr multiarray& operator%= (const t& value) noexcept {
 		ARITHMV(%= );
 
 		return *this;
 	}
 
-	constexpr matrix& operator+= (const t& value) noexcept {
+	constexpr multiarray& operator+= (const t& value) noexcept {
 		ARITHMV(+= );
 
 		return *this;
 	}
 
-	constexpr matrix& operator-= (const t& value) noexcept {
+	constexpr multiarray& operator-= (const t& value) noexcept {
 		ARITHMV(-= );
 
 		return *this;
 	}
 
-	constexpr matrix& operator^= (const t& value) noexcept {
+	constexpr multiarray& operator^= (const t& value) noexcept {
 		ARITHMV(^= );
 
 		return *this;
 	}
 
-	constexpr matrix& operator|= (const t& value) noexcept {
+	constexpr multiarray& operator|= (const t& value) noexcept {
 		ARITHMV(|= );
 
 		return *this;
 	}
 
-	constexpr matrix& operator&= (const t& value) noexcept {
+	constexpr multiarray& operator&= (const t& value) noexcept {
 		ARITHMV(&= );
 
 		return *this;
 	}
 
-	constexpr matrix& operator<<= (const t& value) noexcept {
+	constexpr multiarray& operator<<= (const t& value) noexcept {
 		ARITHMV(<<= );
 
 		return *this;
 	}
 
-	constexpr matrix& operator>>= (const t& value) noexcept {
+	constexpr multiarray& operator>>= (const t& value) noexcept {
 		ARITHMV(>>= );
 
 		return *this;
@@ -400,7 +400,7 @@ public:
 
 	[[nodiscard]] static bool index_out_of_bounds(std::tuple <std::size_t, detail::identity <ns>...> tupl) noexcept {
 		return std::apply([](auto... indexes) {
-			return matrix::index_out_of_bounds(indexes...);
+			return multiarray::index_out_of_bounds(indexes...);
 		}, tupl);
 	}
 
@@ -412,134 +412,134 @@ public:
 		return detail::to_subscript_impl <n, ns...>(std::make_index_sequence <sizeof...(ns) + 1>(), index);
 	}
 
-	inline friend std::ostream& operator<< (std::ostream& out, const matrix& m) {
+	inline friend std::ostream& operator<< (std::ostream& out, const multiarray& m) {
 		detail::for_each(m.elems, [&](const t& x) { out << x << ' '; });
 
 		return out;
 	}
 
-	matrix_type elems;
+	multiarray_type elems;
 
-	[[nodiscard]] constexpr friend auto operator* (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator* (cx::multiarray <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(*= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator* (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator* (const t& value, cx::multiarray <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(*= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator/ (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator/ (cx::multiarray <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(/= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator/ (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator/ (const t& value, cx::multiarray <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(/= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator% (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator% (cx::multiarray <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(%= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator% (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator% (const t& value, cx::multiarray <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(%= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator+ (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator+ (cx::multiarray <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(+= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator+ (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator+ (const t& value, cx::multiarray <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(+= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator- (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator- (cx::multiarray <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(-= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator- (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator- (const t& value, cx::multiarray <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(-= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator^ (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator^ (cx::multiarray <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(^= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator^ (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator^ (const t& value, cx::multiarray <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(^= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator| (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator| (cx::multiarray <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(|= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator| (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator| (const t& value, cx::multiarray <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(|= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator& (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator& (cx::multiarray <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(&= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator& (const t& value, cx::matrix <t, n, ns...> m) noexcept {
+	[[nodiscard]] constexpr friend auto operator& (const t& value, cx::multiarray <t, n, ns...> m) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(&= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator<< (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator<< (cx::multiarray <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(<<= );
 
 		return m;
 	}
 
-	[[nodiscard]] constexpr friend auto operator>> (cx::matrix <t, n, ns...> m, const t& value) noexcept {
+	[[nodiscard]] constexpr friend auto operator>> (cx::multiarray <t, n, ns...> m, const t& value) noexcept {
 		auto& elems = m.elems;
 		ARITHMV(>>= );
 
