@@ -139,5 +139,5 @@ m2.fill("X");
 
 m1.swap(m2);
 
-std::cout << m1; // XXXXXX
+std::cout << m1; // X X X X X X
 ```
