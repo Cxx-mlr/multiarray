@@ -78,13 +78,14 @@ m | value;
 m & value;
 m << value;
 m >> value;
-
+```
+```cpp
 #include "matrix.hpp"
 #include <cassert>
 
 int main() {
    cx::matrix <int, 2, 3, 4> m =
-   {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
+      {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
 
    for (std::size_t i = 0; i < 24; ++i) {
       int x = m(m.to_subscript(i));
