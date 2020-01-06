@@ -19,7 +19,7 @@ int main() {
 .....
 - As_array
 ```cpp
-cx::multiarray <int, 2, 3> m = {1, 2, 3, 4, 5, 6};
+cx::multiarray <int, 3, 2> m = {1, 2, 3, 4, 5, 6};
 
 for (auto x : m.as_array()) {
   int &element = *x; // sanitize
