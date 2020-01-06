@@ -88,21 +88,21 @@ int main() {
       {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
 
    for (std::size_t i = 0; i < 24; ++i) {
-      int x = m(m.to_subscript(i));
-      int y = m[i];
-      int z = m.at(m.to_subscript(i));
-      
-      assert(x == y && x == z); // pass
+      auto subscript = m.to_subscript(i);
+   
+      int &x = m(subscript);
+      int &y = m[i];
+      int &z = m.at(subscript);
    }
    
    for (std::size_t i = 0; i < 2; ++i) {
       for (std::size_t j = 0; j < 3; ++j) {
          for (std::size_t k = 0; k < 4; ++k) {
-            int x = m(i, j, k);
-            int y = m[m.to_linear_index(i, j, k)];
-            int z = m.at(i, j, k);
+            std::size_t linear_index = m.to_linear_index(i, j, k);
             
-            assert(x == y && x == z); // pass
+            int &x = m(i, j, k);
+            int &y = m[linear_index];
+            int &z = m.at(i, j, k);
          }
       }
    }
