@@ -207,6 +207,8 @@ int main() {
           1 1
           2 0
           2 1
+          
+          std::cout << m(subscript) << ' '; 1 2 3 4 5 6
       */
    }
 }
