@@ -190,6 +190,8 @@ int main() {
       }
    }
    
+   puts("\n");
+   
    for (std::size_t index = 0; index < m.rsize() * m.csize(); ++index) {
       auto subscript =
           m.to_subscript(index);
@@ -197,7 +199,15 @@ int main() {
       std::size_t r = std::get <0>(subscript);
       std::size_t c = std::get <1>(subscript);
       
-      std::cout << r << ' ' << c << std::endl; // 
+      std::cout << r << ' ' << c << std::endl;
+      /*
+          0 0
+          0 1
+          1 0
+          1 1
+          2 0
+          2 1
+      */
    }
 }
 ```
