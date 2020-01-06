@@ -141,3 +141,63 @@ m1.swap(m2);
 
 std::cout << m1; // X X X X X X
 ```
+.....
+- Customization
+```cpp
+#include <iostream>
+#include "multiarray.hpp"
+
+template <class t, std::size_t m, std::size_t n>
+using matrix = cx::multiarray <t, m, n>;
+
+int main() {
+   matrix <int, 2, 3> m = {1, 2, 3, 4, 5, 6};
+   
+   for (std::size_t r = 0; r < 2; ++r) {
+      for (std::size_t c = 0; c < 3; ++c) {
+         std::size_t index =
+             m.to_linear_index(r, c);
+             
+         std::cout << index << ' '; // 0 1 2 3 4 5
+      }
+   }
+}
+```
+```cpp
+#include <iostream>
+#include "multiarray.hpp"
+
+template <class t, std::size_t m, std::size_t n>
+struct matrix : cx::multiarray <t, m, n> {
+   constexpr std::size_t rsize() {
+      return m;
+   }
+   
+   constexpr std::size_t csize() {
+      return n;
+   }
+};
+
+int main() {
+   matrix <int, 3, 2> m = {1, 2, 3, 4, 5, 6};
+   
+   for (std::size_t r = 0; r < m.rsize(); ++r) {
+      for (std::size_t c = 0; c < m.csize(); ++c) {
+         std::size_t index =
+             m.to_linear_index(r, c);
+             
+         std::cout << index << ' '; // 0 1 2 3 4 5
+      }
+   }
+   
+   for (std::size_t index = 0; index < m.rsize() * m.csize(); ++index) {
+      auto subscript =
+          m.to_subscript(index);
+          
+      std::size_t r = std::get <0>(subscript);
+      std::size_t c = std::get <1>(subscript);
+      
+      std::cout << r << ' ' << c << std::endl; // 
+   }
+}
+```
