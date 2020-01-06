@@ -103,20 +103,17 @@ namespace detail {
 		return ((indexes * product <ns...>(std::make_index_sequence <sizeof...(ns) - steps - 1>())) + ...);
 	}
 
-	//
-
 	template <std::size_t... ns, std::size_t... indexes>
 	constexpr auto mod_div(std::index_sequence <indexes...>, std::size_t index) noexcept {
 		std::tuple dims{ ns... };
 
 		((index /= std::get <sizeof...(ns) - 1U - indexes>(dims)), ...);
 
-
 		if constexpr (sizeof...(indexes) == 0) {
 			index %= std::get <sizeof...(ns) - 1>(dims);
 		}
 
-		else if constexpr (sizeof...(indexes) != sizeof...(ns)) {
+		else if constexpr (sizeof...(indexes) != sizeof...(ns) - 1U) {
 			index %= std::get <sizeof...(indexes)>(dims);
 		}
 
@@ -127,7 +124,6 @@ namespace detail {
 	constexpr auto to_subscript_impl(std::index_sequence <indexes...>, std::size_t index) noexcept {
 		return std::tuple{ mod_div <ns...>(std::make_index_sequence <sizeof...(ns) - 1U - indexes>(), index)... };
 	}
-
 }
 
 template <class t, std::size_t n, std::size_t... ns>
@@ -394,21 +390,21 @@ public:
 		return result;
 	}
 
-	[[nodiscard]] static bool index_out_of_bounds(std::size_t index, detail::identity <ns>... indexes) noexcept {
+	[[nodiscard]] constexpr static bool index_out_of_bounds(std::size_t index, detail::identity <ns>... indexes) noexcept {
 		return index >= n || ((indexes >= ns) || ...);
 	}
 
-	[[nodiscard]] static bool index_out_of_bounds(std::tuple <std::size_t, detail::identity <ns>...> tupl) noexcept {
+	[[nodiscard]] constexpr static bool index_out_of_bounds(std::tuple <std::size_t, detail::identity <ns>...> tupl) noexcept {
 		return std::apply([](auto... indexes) {
 			return multiarray::index_out_of_bounds(indexes...);
 		}, tupl);
 	}
 
-	constexpr static std::size_t to_linear_index(std::size_t index, detail::identity <ns>... indexes) noexcept {
+	[[nodiscard]] constexpr static std::size_t to_linear_index(std::size_t index, detail::identity <ns>... indexes) noexcept {
 		return detail::to_linear_index_impl <n, ns...>(std::make_index_sequence <sizeof...(ns) + 1>(), index, indexes...);
 	}
 
-	constexpr static auto to_subscript(std::size_t index) noexcept {
+	[[nodiscard]] constexpr static auto to_subscript(std::size_t index) noexcept {
 		return detail::to_subscript_impl <n, ns...>(std::make_index_sequence <sizeof...(ns) + 1>(), index);
 	}
 
