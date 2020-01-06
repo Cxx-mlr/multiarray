@@ -32,10 +32,10 @@ std::cout << m; // 2 4 6 8 10 12
 .....
 - Multidimensional
 ```cpp
-cx::multiarray <int, 3> m_1 = {};
-cx::multiarray <int, 3, 3> m_2 = {};
-cx::multiarray <int, 3, 3, 3> m_3 = {};
-cx::multiarray <int, 3, 3, 3, 3...> m_ = {};
+cx::multiarray <int, M> m_1 = {};
+cx::multiarray <int, M, N> m_2 = {};
+cx::multiarray <int, M, N, O> m_3 = {};
+cx::multiarray <int, M, N, O, P...> m_ = {};
 
 // linear index
 m_1[i]
