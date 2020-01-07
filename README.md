@@ -17,19 +17,6 @@ int main() {
 }
 ```
 .....
-- As_array
-```cpp
-cx::multiarray <int, 3, 2> m = {1, 2, 3, 4, 5, 6};
-
-for (auto x : m.as_array()) {
-  int &element = *x; // sanitize
-  
-  element *= 2;
-}
-
-std::cout << m; // 2 4 6 8 10 12
-```
-.....
 - Multidimensional
 ```cpp
 cx::multiarray <int, M> m_1 = {};
@@ -78,10 +65,31 @@ m | value;
 m & value;
 m << value;
 m >> value;
+
+m *= m;
+m /= m;
+m %= m;
+m += m;
+m -= m;
+m ^= m;
+m |= m;
+m &= m;
+m <<= m;
+m >>= m;
+
+m* m;
+m / m;
+m% m;
+m + m;
+m - m;
+m^ m;
+m | m;
+m& m;
+m << m;
+m >> m;
 ```
 ```cpp
 #include "multiarray.hpp"
-#include <cassert>
 
 int main() {
    cx::multiarray <int, 2, 3, 4> m =
@@ -129,6 +137,8 @@ m.rbegin();
 m.rend();
 m.crbegin();
 m.crend();
+
+std::copy(m.begin(), m.end(), std::ostream_iterator <int>(std::cout, " ")); // 0 0 0 0 0 0
 ```
 .....
 ```cpp
