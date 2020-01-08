@@ -13,7 +13,7 @@
 CX_BEGIN
 namespace detail {
 	template <auto v>
-	using identity = decltype(v);
+	using identity = std::size_t;
 
 	template <std::size_t... ns, std::size_t... indexes>
 	constexpr std::size_t product(std::index_sequence <indexes...>) noexcept {
@@ -128,22 +128,22 @@ public:
 	}
 
 	[[nodiscard]] constexpr reference operator()(std::size_t index, detail::identity <ns>... indexes) noexcept {
-		return *this[to_linear_index(index, indexes...)];
+		return (*this)[to_linear_index(index, indexes...)];
 	}
 
 	[[nodiscard]] constexpr const_reference operator()(std::size_t index, detail::identity <ns>... indexes) const noexcept {
-		return *this[to_linear_index(index, indexes...)];
+		return (*this)[to_linear_index(index, indexes...)];
 	}
 
 	[[nodiscard]] constexpr reference operator()(std::tuple <std::size_t, detail::identity <ns>...> tupl) noexcept {
 		return std::apply([this](auto... indexes) -> t& {
-			return *this[to_linear_index(indexes...)];
+			return (*this)[to_linear_index(indexes...)];
 		}, tupl);
 	}
 
 	[[nodiscard]] constexpr const_reference operator()(std::tuple <std::size_t, detail::identity <ns>...> tupl) const noexcept {
 		return std::apply([this](auto... indexes) -> const t& {
-			return *this[to_linear_index(indexes...)];
+			return (*this)[to_linear_index(indexes...)];
 		}, tupl);
 	}
 
@@ -152,7 +152,7 @@ public:
 			throw std::range_error("array subscript out of range");
 		}
 
-		return *this[to_linear_index(index, indexes...)];
+		return (*this)[to_linear_index(index, indexes...)];
 	}
 
 	[[nodiscard]] constexpr const_reference at(std::size_t index, detail::identity <ns>... indexes) const {
@@ -160,7 +160,7 @@ public:
 			throw std::range_error("array subscript out of range");
 		}
 
-		return *this[to_linear_index(index, indexes...)];
+		return (*this)[to_linear_index(index, indexes...)];
 	}
 
 	[[nodiscard]] constexpr reference at(std::tuple <std::size_t, detail::identity <ns>...> tupl) {
@@ -290,25 +290,25 @@ public:
 	constexpr multiarray operator+ () noexcept {
 		multiarray m;
 
-		ARITHMF(= +*this[idx]);
+		ARITHMF(= +(*this)[idx]);
 	}
 
 	constexpr multiarray operator- () noexcept {
 		multiarray m;
 
-		ARITHMF(= -*this[idx]);
+		ARITHMF(= -(*this)[idx]);
 	}
 
 	constexpr multiarray operator~ () noexcept {
 		multiarray m;
 
-		ARITHMF(= ~*this[idx]);
+		ARITHMF(= ~(*this)[idx]);
 	}
 
 	constexpr multiarray operator! () noexcept {
 		multiarray m;
 
-		ARITHMF(= !*this[idx]);
+		ARITHMF(= !(*this)[idx]);
 	}
 
 	constexpr multiarray& operator*= (const t& value) noexcept {
