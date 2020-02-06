@@ -52,7 +52,6 @@ namespace detail {
 
 template <class t, std::size_t n, std::size_t... ns>
 class multiarray {
-	using cx_multiarray_tag = struct {};
 public:
 	using value_type = t;
 	using size_type = std::size_t;
@@ -355,46 +354,6 @@ public:
 		ARITHMM(>>= value);
 	}
 
-	constexpr multiarray& operator*= (const multiarray& m) noexcept {
-		ARITHMM(*= m[idx]);
-	}
-
-	constexpr multiarray& operator/= (const multiarray& m) noexcept {
-		ARITHMM(/= m[idx]);
-	}
-
-	constexpr multiarray& operator%= (const multiarray& m) noexcept {
-		ARITHMM(%= m[idx]);
-	}
-
-	constexpr multiarray& operator+= (const multiarray& m) noexcept {
-		ARITHMM(+= m[idx]);
-	}
-
-	constexpr multiarray& operator-= (const multiarray& m) noexcept {
-		ARITHMM(-= m[idx]);
-	}
-
-	constexpr multiarray& operator^= (const multiarray& m) noexcept {
-		ARITHMM(^= m[idx]);
-	}
-
-	constexpr multiarray& operator|= (const multiarray& m) noexcept {
-		ARITHMM(|= m[idx]);
-	}
-
-	constexpr multiarray& operator&= (const multiarray& m) noexcept {
-		ARITHMM(&= m[idx]);
-	}
-
-	constexpr multiarray& operator<<= (const multiarray& m) noexcept {
-		ARITHMM(<<= m[idx]);
-	}
-
-	constexpr multiarray& operator>>= (const multiarray& m) noexcept {
-		ARITHMM(>>= m[idx]);
-	}
-
 	[[nodiscard]] constexpr friend auto operator* (cx::multiarray <t, n, ns...> m, const t& value) noexcept {
 		ARITHMF(*= value, m.size());
 	}
@@ -467,56 +426,6 @@ public:
 		ARITHMF(>>= value, m.size());
 	}
 
-	template <std::size_t nn, std::size_t... nns>
-	[[nodiscard]] constexpr friend auto operator* (cx::multiarray <t, n, ns...> m, cx::multiarray <t, nn, nns...> mm) noexcept {
-		ARITHMF(*= mm[idx], std::min(m.size(), mm.size()));
-	}
-
-	template <std::size_t nn, std::size_t... nns>
-	[[nodiscard]] constexpr friend auto operator/ (cx::multiarray <t, n, ns...> m, cx::multiarray <t, nn, nns...> mm) noexcept {
-		ARITHMF(/= mm[idx], std::min(m.size(), mm.size()));
-	}
-
-	template <std::size_t nn, std::size_t... nns>
-	[[nodiscard]] constexpr friend auto operator% (cx::multiarray <t, n, ns...> m, cx::multiarray <t, nn, nns...> mm) noexcept {
-		ARITHMF(%= mm[idx], std::min(m.size(), mm.size()));
-	}
-
-	template <std::size_t nn, std::size_t... nns>
-	[[nodiscard]] constexpr friend auto operator+ (cx::multiarray <t, n, ns...> m, cx::multiarray <t, nn, nns...> mm) noexcept {
-		ARITHMF(+= mm[idx], std::min(m.size(), mm.size()));
-	}
-
-	template <std::size_t nn, std::size_t... nns>
-	[[nodiscard]] constexpr friend auto operator- (cx::multiarray <t, n, ns...> m, cx::multiarray <t, nn, nns...> mm) noexcept {
-		ARITHMF(-= mm[idx], std::min(m.size(), mm.size()));
-	}
-
-	template <std::size_t nn, std::size_t... nns>
-	[[nodiscard]] constexpr friend auto operator^ (cx::multiarray <t, n, ns...> m, cx::multiarray <t, nn, nns...> mm) noexcept {
-		ARITHMF(^= mm[idx], std::min(m.size(), mm.size()));
-	}
-
-	template <std::size_t nn, std::size_t... nns>
-	[[nodiscard]] constexpr friend auto operator| (cx::multiarray <t, n, ns...> m, cx::multiarray <t, nn, nns...> mm) noexcept {
-		ARITHMF(|= mm[idx], std::min(m.size(), mm.size()));
-	}
-
-	template <std::size_t nn, std::size_t... nns>
-	[[nodiscard]] constexpr friend auto operator& (cx::multiarray <t, n, ns...> m, cx::multiarray <t, nn, nns...> mm) noexcept {
-		ARITHMF(&= mm[idx], std::min(m.size(), mm.size()));
-	}
-
-	template <std::size_t nn, std::size_t... nns>
-	[[nodiscard]] constexpr friend auto operator<< (cx::multiarray <t, n, ns...> m, cx::multiarray <t, nn, nns...> mm) noexcept {
-		ARITHMF(<<= mm[idx], std::min(m.size(), mm.size()));
-	}
-
-	template <std::size_t nn, std::size_t... nns>
-	[[nodiscard]] constexpr friend auto operator>> (cx::multiarray <t, n, ns...> m, cx::multiarray <t, nn, nns...> mm) noexcept {
-		ARITHMF(>>= mm[idx], std::min(m.size(), mm.size()));
-	}
-
 	[[nodiscard]] constexpr static bool index_out_of_bounds(std::size_t index, detail::identity <ns>... indexes) noexcept {
 		return index >= n || ((indexes >= ns) || ...);
 	}
@@ -537,14 +446,6 @@ public:
 		}, tupl);
 	}
 
-	template <std::size_t n, std::size_t... ns>
-	[[nodiscard]] constexpr static std::size_t to_linear_index(std::size_t index, detail::identity <ns>... indexes) noexcept {
-	}
-
-	template <std::size_t n, std::size_t... ns>
-	[[nodiscard]] constexpr static auto to_subscript(std::size_t index) noexcept {
-	}
-
 	[[nodiscard]] constexpr static auto to_subscript(std::size_t index) noexcept {
 		return detail::to_subscript_impl <n, ns...>(std::make_index_sequence <sizeof...(ns) + 1>(), index);
 	}
@@ -553,9 +454,17 @@ public:
 		return std::tuple{ n, ns... };
 	}
 
-	inline friend std::ostream& operator<< (std::ostream& out, const multiarray& m) {
+	void pretty_print(std::ostream& os) {
+		os << zelems[0];
+
+		for (std::size_t idx = 1; idx < size(); ++idx) {
+			os << ' ' << zelems[idx];
+		}
+	}
+
+	friend std::ostream& operator<< (std::ostream& out, const multiarray& m) {
 		for (std::size_t idx = 0; idx < m.size(); ++idx) {
-			std::cout << m.zelems[idx] << ' ';
+			out << m.zelems[idx];
 		}
 
 		return out;
@@ -563,6 +472,7 @@ public:
 
 	t zelems[size()];
 };
+
 CX_END
 
 #endif
